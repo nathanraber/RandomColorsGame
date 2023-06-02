@@ -1,7 +1,7 @@
 # cpxBoardGame
 
-### Author:
+## Author:
 Nathan Raber
 
-### What Does it Do?
+## What Does it Do?
 It's a game.
