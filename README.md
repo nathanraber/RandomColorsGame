@@ -1,4 +1,4 @@
-# cpxBoardGame
+# Random Colors Game
 
 ## Author:
 Nathan Raber
