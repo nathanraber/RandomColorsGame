@@ -1,28 +1,24 @@
 //libraries:
 #include <Adafruit_CircuitPlayground.h>
 #include <AsyncDelay.h>
-//#include <Wire.h>
-//#include <SPI.h>
 #include <Talkie.h>
-#include <string.h>
 
 //variables:
-int lrandlight; //used
-int rrandlight; //used
-float midi[127]; //used
-int A_four = 440; //used
-volatile int userr = 0; //used
-volatile int userl = 9; //used
-int colorr; //used
-int colorg; //used
-int colorb; //used
-int score; //used
-volatile int gametime=5000; //used
-volatile bool lactuation =0; //used
-volatile bool ractuation =0; //used
-volatile bool onOFF =0; //used
-AsyncDelay tImer; //used
+int lrandlight; 
+int rrandlight; 
+volatile int userr = 0; 
+volatile int userl = 9; 
+int colorr; 
+int colorg; 
+int colorb; 
+int score; 
+volatile int gametime=5000; 
+volatile bool lactuation =0; 
+volatile bool ractuation =0; 
+AsyncDelay tImer;
 Talkie voice;
+
+//spoken word data:
 const uint8_t spLEVEL[] PROGMEM = {0x69,0xAB,0xC4,0xB3,0xD8,0x92,0x86,0x2D,0x83,0xEE,0x60,0xCD,0x12,0xD6,0x0C,0x66,0x45,0x2C,0x73,0x58,0x0B,0xA8,0x53,0xD6,0xAC,0x6D,0xE9,0xC0,0x57,0xC5,0xB2,0xAE,0xA1,0xB0,0x49,0x0D,0x7B,0xBD,0x86,0xA2,0x47,0x35,0xE3,0xF5,0xEA,0xB2,0x4B,0x4B,0xCB,0xC7,0xA3,0xCD,0xDE,0x23,0x59,0x1A,0x9A,0x31,0x8B,0xB0,0x54,0x76,0xE3,0xC6,0x26,0x5C,0x2C,0xCC,0x76,0x6B,0x92,0xBC,0x34,0x95,0xC6,0xA3,0xCE,0x74,0xDB,0x85,0x3B,0x8F,0xBA,0x90,0x9C,0x51,0xCC,0xD6,0xEA,0x4C,0x63,0x56,0x30,0x6D,0xA9,0x23,0xCF,0x59,0xD0,0x34,0xB5,0xF9,0x7F};
 const uint8_t spZERO[] PROGMEM = {0x69,0xFB,0x59,0xDD,0x51,0xD5,0xD7,0xB5,0x6F,0x0A,0x78,0xC0,0x52,0x01,0x0F,0x50,0xAC,0xF6,0xA8,0x16,0x15,0xF2,0x7B,0xEA,0x19,0x47,0xD0,0x64,0xEB,0xAD,0x76,0xB5,0xEB,0xD1,0x96,0x24,0x6E,0x62,0x6D,0x5B,0x1F,0x0A,0xA7,0xB9,0xC5,0xAB,0xFD,0x1A,0x62,0xF0,0xF0,0xE2,0x6C,0x73,0x1C,0x73,0x52,0x1D,0x19,0x94,0x6F,0xCE,0x7D,0xED,0x6B,0xD9,0x82,0xDC,0x48,0xC7,0x2E,0x71,0x8B,0xBB,0xDF,0xFF,0x1F};
 const uint8_t spONE[] PROGMEM = {0x66,0x4E,0xA8,0x7A,0x8D,0xED,0xC4,0xB5,0xCD,0x89,0xD4,0xBC,0xA2,0xDB,0xD1,0x27,0xBE,0x33,0x4C,0xD9,0x4F,0x9B,0x4D,0x57,0x8A,0x76,0xBE,0xF5,0xA9,0xAA,0x2E,0x4F,0xD5,0xCD,0xB7,0xD9,0x43,0x5B,0x87,0x13,0x4C,0x0D,0xA7,0x75,0xAB,0x7B,0x3E,0xE3,0x19,0x6F,0x7F,0xA7,0xA7,0xF9,0xD0,0x30,0x5B,0x1D,0x9E,0x9A,0x34,0x44,0xBC,0xB6,0x7D,0xFE,0x1F};
@@ -47,16 +43,16 @@ const uint8_t spNINETEEN[] PROGMEM = {0x6E,0x2F,0x44,0xB4,0x5B,0x93,0xA6,0xAD,0x
 const uint8_t spTWENTY[] PROGMEM = {0x0A,0xE8,0x4A,0xCD,0x01,0xDB,0xB9,0x33,0xC0,0xA6,0x54,0x0C,0xA4,0x34,0xD9,0xF2,0x0A,0x6C,0xBB,0xB3,0x53,0x0E,0x5D,0xA6,0x25,0x9B,0x6F,0x75,0xCA,0x61,0x52,0xDC,0x74,0x49,0xA9,0x8A,0xC4,0x76,0x4D,0xD7,0xB1,0x76,0xC0,0x55,0xA6,0x65,0xD8,0x26,0x99,0x5C,0x56,0xAD,0xB9,0x25,0x23,0xD5,0x7C,0x32,0x96,0xE9,0x9B,0x20,0x7D,0xCB,0x3C,0xFA,0x55,0xAE,0x99,0x1A,0x30,0xFC,0x4B,0x3C,0xFF,0x1F};
 
 //functions:
-void randomcolors(){
-  colorr = random(255);
-  colorg = random(255);
-  colorb = random(255);
-  lrandlight = random(4)+5;
-  rrandlight = random(4)+1;
-  CircuitPlayground.setPixelColor(lrandlight, colorr, colorg, colorb);
-  CircuitPlayground.setPixelColor(rrandlight, colorr, colorg, colorb);
+void randomcolors(){//random color light generating function
+  colorr = random(255); //chose random red value
+  colorg = random(255); //chose random green value
+  colorb = random(255); //chose random blue value
+  lrandlight = random(4)+5; //choose random position on left half of board
+  rrandlight = random(4)+1; //choose random position on right half of board
+  CircuitPlayground.setPixelColor(lrandlight, colorr, colorg, colorb); //display left random light
+  CircuitPlayground.setPixelColor(rrandlight, colorr, colorg, colorb); //display right random light
 }
-void breathing(){
+void breathing(){//loosing color pattern
   for(int i=0; i<2; i++){
     for(int i=0;i<255;i++)
     {
@@ -88,21 +84,17 @@ void breathing(){
     tImer.repeat();
   }
 }
-void singlePressl() {
+void singlePressl() {//left button flag
   lactuation = 1;
 }
-void singlePressr() {
+void singlePressr() {//right button flag
   ractuation = 1;
 }
-void switchflag(){
-  onOFF=1;
-}
-void loose(){
-  CircuitPlayground.clearPixels();
-  //CircuitPlayground.playTone(midi[30],1000);
-  score=(5000-gametime)/250;
-  CircuitPlayground.speaker.say(spLEVEL);
-  switch(score){
+void loose(){//losing function
+  CircuitPlayground.clearPixels(); //turnoff all pixels
+  score=(5000-gametime)/250; //evaluate score based on gametime
+  CircuitPlayground.speaker.say(spLEVEL); // say "level"
+  switch(score){// say "[score value]"
     case 0: CircuitPlayground.speaker.say(spZERO);
     break;
     case 1: CircuitPlayground.speaker.say(spONE);
@@ -146,27 +138,24 @@ void loose(){
     case 20: CircuitPlayground.speaker.say(spTWENTY);
     break;
   }
-  gametime=5000;
-  score=0;
-  breathing();
-  delay(1500);
+  gametime=5000;//reset gametime
+  score=0;//reset score
+  breathing();// play losing animation
 }
-void win(){
-  CircuitPlayground.clearPixels();
-  gametime=gametime-250;
+void win(){//winning function
+  CircuitPlayground.clearPixels(); //turn off all lights
+  gametime=gametime-250; //reduce the game time length by 250ms
 }
-void reset(){
-    CircuitPlayground.clearPixels();
-    userr = 0;
-    userl = 9;
+void reset(){//reset function
+    CircuitPlayground.clearPixels(); //turn off all pixels
+    userr = 0; //set the right user selector led to the starting position
+    userl = 9; //set the left user selector led to the starting position
 }
 //setup:
 void setup(){
-  Serial.begin(9600);
-  CircuitPlayground.begin();
-  generateMIDI();
-  attachInterrupt(digitalPinToInterrupt(5), singlePressl, FALLING);
-  attachInterrupt(digitalPinToInterrupt(4), singlePressr, FALLING);
+  CircuitPlayground.begin(); //initalize CPX board
+  attachInterrupt(digitalPinToInterrupt(5), singlePressl, FALLING); //attach interupts to left pin
+  attachInterrupt(digitalPinToInterrupt(4), singlePressr, FALLING); //attach interupts to right pin
 }
 //loop:
 void loop() {
@@ -175,7 +164,6 @@ void loop() {
   randomcolors(); //display random colors on pins
   CircuitPlayground.setPixelColor(userl, 255, 255, 255); //set left selector led at beggining
   CircuitPlayground.setPixelColor(userr, 255, 255, 255); //set right selector led at beggining
-  Serial.println(gametime);
   while(!tImer.isExpired()){ //while the timer is still going
     if(lactuation && (userl >= lrandlight)){ // if you push the left button and the left light is not on the pin of the random light yet
       userl--;//advance one position
@@ -204,7 +192,7 @@ void loop() {
   }
   while(tImer.isExpired()){ //if the timer is up
     loose(); //you loose
-    break;
+    break; //break out of while loop
   }
-      reset(); //the game resets
+  reset(); //the game resets
 }
